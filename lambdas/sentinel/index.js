@@ -11,8 +11,8 @@ const metadata = require('../../lib/metadata');
 
 const awsBaseUrl = 'https://sentinel-s2-l1c.s3.amazonaws.com';
 
-function getSceneId(date, mgrs, version = 0) {
-  return `S2A_tile_${date.format('YYYYMMDD')}_${mgrs}_${version}`;
+function getSceneId(sat, date, mgrs, version = 0) {
+  return `${sat}_tile_${date.format('YYYYMMDD')}_${mgrs}_${version}`;
 }
 
 function parseMgrs(mgrs) {
@@ -93,9 +93,10 @@ function transform(data, callback) {
 
   getSentinelInfo(tileMetaUrl).then((info) => {
     info = info.body;
-    record.scene_id = getSceneId(date, mgrs);
+    const sat = info.productName.slice(0, 3);
+    record.scene_id = getSceneId(sat, date, mgrs);
     record.product_id = data.PRODUCT_ID;
-    record.satellite_name = 'Sentinel-2A';
+    record.satellite_name = `Sentinel-2${sat.slice(-1)}`;
     record.cloud_coverage = parseFloat(data.CLOUD_COVER);
     record.date = date.format('YYYY-MM-DD');
     record.thumbnail = `${tileBaseUrl}/preview.jpg`;
